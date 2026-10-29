@@ -1,0 +1,96 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Settings - Face Attendance System{% endblock %}
+{% block page_title %}System Configuration{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-6">
+        <!-- Camera & Recognition Parameters -->
+        <div class="card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="fas fa-camera text-primary me-2"></i>Hardware & Recognition Tuning</h5>
+            <p class="text-muted small mb-4">Configure camera source index and facial matching sensitivity.</p>
+
+            <form method="POST" action="{{ url_for('update_settings') }}">
+                <div class="mb-3">
+                    <label for="camera_index" class="form-label small fw-semibold">Webcam Index</label>
+                    <select class="form-select form-select-custom" id="camera_index" name="camera_index">
+                        <option value="0" {% if config.CAMERA_INDEX == 0 %}selected{% endif %}>Device 0 (Default Integrated Webcam)</option>
+                        <option value="1" {% if config.CAMERA_INDEX == 1 %}selected{% endif %}>Device 1 (External USB / Secondary Camera)</option>
+                        <option value="2" {% if config.CAMERA_INDEX == 2 %}selected{% endif %}>Device 2 (Tertiary Camera)</option>
+                    </select>
+                    <div class="form-text small">Select which connected camera device to open for attendance scanning.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="cooldown_seconds" class="form-label small fw-semibold">Recognition Cooldown (Seconds)</label>
+                    <input type="number" class="form-control form-control-custom" id="cooldown_seconds" name="cooldown_seconds" value="{{ config.RECOGNITION_COOLDOWN_SECONDS }}" min="3" max="120" required>
+                    <div class="form-text small">Seconds to wait before logging another event for the same face to prevent rapid duplicate logs.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="match_tolerance" class="form-label small fw-semibold">Matching Distance Tolerance</label>
+                    <input type="number" step="0.01" class="form-control form-control-custom" id="match_tolerance" name="match_tolerance" value="{{ config.FACE_MATCH_TOLERANCE }}" min="0.2" max="0.8" required>
+                    <div class="form-text small">Recommended: 0.45. Lower values are stricter (fewer false positives); higher values are more lenient.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Save Parameters
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <!-- Security & Admin Password Update -->
+        <div class="card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="fas fa-shield-halved text-primary me-2"></i>Admin Security</h5>
+            <p class="text-muted small mb-4">Update administrator password. All passwords are encrypted with salted hashes.</p>
+
+            <form method="POST" action="{{ url_for('change_password') }}">
+                <div class="mb-3">
+                    <label for="current_password" class="form-label small fw-semibold">Current Password</label>
+                    <input type="password" class="form-control form-control-custom" id="current_password" name="current_password" placeholder="••••••••" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="new_password" class="form-label small fw-semibold">New Password</label>
+                    <input type="password" class="form-control form-control-custom" id="new_password" name="new_password" placeholder="••••••••" required minlength="6">
+                </div>
+
+                <div class="mb-4">
+                    <label for="confirm_password" class="form-label small fw-semibold">Confirm New Password</label>
+                    <input type="password" class="form-control form-control-custom" id="confirm_password" name="confirm_password" placeholder="••••••••" required minlength="6">
+                </div>
+
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="fas fa-key me-1"></i> Change Password
+                </button>
+            </form>
+        </div>
+
+        <!-- Technical Environment Details -->
+        <div class="card-custom p-4">
+            <h6 class="fw-bold mb-3"><i class="fas fa-microchip text-secondary me-2"></i>Engine Diagnostics</h6>
+            <table class="table table-sm small mb-0">
+                <tr>
+                    <td class="text-muted">Python Version:</td>
+                    <td><strong>3.12.9 (Windows x64)</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Vision Library:</td>
+                    <td>OpenCV 4.13.0</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Database Engine:</td>
+                    <td>SQLite 3 (ACID-compliant with unique constraints)</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Active Face Engine:</td>
+                    <td><span class="badge bg-success-subtle text-success">LBP-HOG 256-D Normalized Feature Extractor</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

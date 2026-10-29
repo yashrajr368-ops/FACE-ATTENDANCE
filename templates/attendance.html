@@ -1,0 +1,114 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Live Face Attendance Kiosk{% endblock %}
+{% block page_title %}Real-Time Face Recognition Attendance{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Camera Section (Large Viewport) -->
+    <div class="col-lg-8">
+        <div class="card-custom p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-video text-primary me-2"></i>Live Camera Feed</h5>
+                    <span id="cameraStatusPill" class="badge bg-success-subtle text-success p-2 px-3 rounded-pill">
+                        <span class="pulse-dot"></span> Camera Active & Connected
+                    </span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="audioMuted = !audioMuted; this.innerHTML = audioMuted ? '<i class=\"fas fa-volume-mute me-1\"></i> Unmute' : '<i class=\"fas fa-volume-up me-1\"></i> Mute';">
+                        <i class="fas fa-volume-up me-1"></i> Mute
+                    </button>
+                    <a href="{{ url_for('attendance_kiosk') }}" class="btn btn-sm btn-outline-primary" title="Refresh Stream">
+                        <i class="fas fa-rotate"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Large Webcam Panel -->
+            <div class="camera-container mb-3">
+                <img src="{{ url_for('video_feed') }}" alt="Live Face Recognition Camera Feed" class="camera-stream" id="mainWebcamFeed">
+                <div class="camera-badge">
+                    <span class="pulse-dot"></span> REAL-TIME DETECTION ACTIVE
+                </div>
+            </div>
+
+            <!-- Real-time Status Banner -->
+            <div class="card-custom p-3 bg-light-subtle border">
+                <div class="row align-items-center text-center text-md-start">
+                    <div class="col-md-7 mb-2 mb-md-0">
+                        <small class="text-muted text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Live Detection Status</small>
+                        <div class="fw-bold fs-5 text-dark-emphasis" id="latestDetectionMsg">
+                            Camera connected - Waiting for face...
+                        </div>
+                    </div>
+                    <div class="col-md-5 text-md-end">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill small">
+                            <i class="fas fa-shield-halved me-1"></i> Anti-Duplicate Protection Active
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guidance Notes -->
+            <div class="mt-3 text-muted small d-flex flex-wrap gap-3 justify-content-between">
+                <div><i class="fas fa-check-circle text-success me-1"></i><strong>Green Box:</strong> Registered Student (Attendance Automatically Logged)</div>
+                <div><i class="fas fa-times-circle text-danger me-1"></i><strong>Red Box:</strong> Unknown Person (Never Marked Present)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Event Feed & Today's Attendance Panel -->
+    <div class="col-lg-4">
+        <div class="card-custom p-4 h-100 d-flex flex-direction-column">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="fas fa-clipboard-check text-success me-2"></i>Today's Attendance Feed
+                </h6>
+                <span class="badge bg-secondary-subtle text-secondary">{{ today_str }}</span>
+            </div>
+
+            <div class="alert alert-info py-2 small mb-3">
+                <i class="fas fa-info-circle me-1"></i> Faces are identified automatically in real time. Duplicate scans on the same date are ignored.
+            </div>
+
+            <div class="table-responsive flex-grow-1" style="max-height: 480px; overflow-y: auto;">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceLiveFeed">
+                        {% for item in today_records %}
+                        <tr>
+                            <td>
+                                <strong class="text-primary d-block">{{ item.student_name }}</strong>
+                                <small class="text-muted">{{ item.student_id }}</small>
+                            </td>
+                            <td class="small">{{ item.attendance_time }}</td>
+                            <td><span class="badge-present"><i class="fas fa-check"></i> Present</span></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted">
+                                <i class="fas fa-id-badge fa-2x mb-2 d-block text-secondary"></i>
+                                Ready for recognition.<br>Students should look at the camera.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pt-3 border-top mt-3 text-center">
+                <a href="{{ url_for('attendance_records') }}" class="btn btn-outline-primary btn-sm w-100">
+                    <i class="fas fa-list me-1"></i> View Full Attendance Logs
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

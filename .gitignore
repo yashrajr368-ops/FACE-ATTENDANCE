@@ -1,0 +1,53 @@
+﻿# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Environment variables (keep .env.example)
+.env
+
+# SQLite database
+instance/*.db
+*.sqlite3
+
+# Face encodings cache & models
+data/face_encodings/*.json
+data/models/*.onnx
+
+# Ignore logs
+*.log
+out.log
+err.log
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

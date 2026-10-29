@@ -1,0 +1,113 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Attendance Reports - Face Attendance System{% endblock %}
+{% block page_title %}Analytics & Reports{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Export Filter Card -->
+    <div class="col-lg-5">
+        <div class="card-custom p-4">
+            <h5 class="fw-bold mb-3"><i class="fas fa-file-export text-primary me-2"></i>Export Attendance</h5>
+            <p class="text-muted small mb-4">Select date boundaries and academic parameters to download institutional records.</p>
+
+            <form method="GET" action="{{ url_for('export_excel') }}" id="reportForm">
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Date Range</label>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <input type="date" class="form-control form-control-custom" name="start_date" id="start_date" placeholder="Start Date">
+                            <small class="text-muted" style="font-size:0.75rem;">From Date</small>
+                        </div>
+                        <div class="col-6">
+                            <input type="date" class="form-control form-control-custom" name="end_date" id="end_date" placeholder="End Date">
+                            <small class="text-muted" style="font-size:0.75rem;">To Date</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="course" class="form-label small fw-semibold">Course / Class Filter</label>
+                    <select class="form-select form-select-custom" name="course" id="report_course">
+                        <option value="">All Courses / Classes</option>
+                        {% for c in courses %}
+                        <option value="{{ c }}">{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="student_id" class="form-label small fw-semibold">Specific Student (Optional)</label>
+                    <select class="form-select form-select-custom" name="student_id" id="report_student">
+                        <option value="">All Students</option>
+                        {% for s in students %}
+                        <option value="{{ s.student_id }}">{{ s.name }} ({{ s.student_id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success py-2 fw-semibold shadow-sm" onclick="this.form.action='{{ url_for('export_excel') }}'">
+                        <i class="fas fa-file-excel me-2"></i>Download Styled Excel (.xlsx)
+                    </button>
+                    <button type="submit" class="btn btn-outline-secondary py-2 fw-semibold" onclick="this.form.action='{{ url_for('export_csv') }}'">
+                        <i class="fas fa-file-csv me-2"></i>Download Raw CSV (.csv)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Student Attendance Summary Card -->
+    <div class="col-lg-7">
+        <div class="card-custom p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold mb-0"><i class="fas fa-chart-column text-primary me-2"></i>Student Attendance Summary</h5>
+                    <small class="text-muted">Aggregated performance per enrolled student</small>
+                </div>
+            </div>
+
+            <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Course</th>
+                            <th>Present</th>
+                            <th>Absent</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in summary %}
+                        <tr>
+                            <td><strong class="text-primary">{{ item.student_id }}</strong></td>
+                            <td class="fw-semibold">{{ item.name }}</td>
+                            <td><span class="badge bg-secondary-subtle text-secondary">{{ item.course }}</span></td>
+                            <td class="text-success fw-bold">{{ item.present_days }}</td>
+                            <td class="text-danger fw-bold">{{ item.absent_days }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 6px;">
+                                        <div class="progress-bar {% if item.percentage >= 75 %}bg-success{% elif item.percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ item.percentage }}%;" aria-valuenow="{{ item.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <span class="small fw-semibold">{{ item.percentage }}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                No student records available to summarize.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

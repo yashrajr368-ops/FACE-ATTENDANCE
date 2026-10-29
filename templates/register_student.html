@@ -1,0 +1,158 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Register Student - Face Attendance System{% endblock %}
+{% block page_title %}Student Registration{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-9">
+        <div class="card-custom p-4 p-md-5">
+            <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                <div>
+                    <h4 class="fw-bold mb-1"><i class="fas fa-user-plus text-primary me-2"></i>New Student Enrollment</h4>
+                    <p class="text-muted small mb-0">Register student details and calibrate their facial recognition biometrics.</p>
+                </div>
+                <a href="{{ url_for('students_list') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Students
+                </a>
+            </div>
+
+            <form method="POST" action="{{ url_for('register_student') }}" id="studentRegistrationForm">
+                <!-- Hidden input for captured facial encoding array -->
+                <input type="hidden" name="face_encoding" id="face_encoding" value="">
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="student_id" class="form-label fw-semibold small">Student ID <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent text-muted"><i class="fas fa-id-card"></i></span>
+                            <input type="text" class="form-control form-control-custom" id="student_id" name="student_id" placeholder="e.g. STU1001" required>
+                        </div>
+                        <div class="form-text small">Unique institutional identity identifier.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="name" class="form-label fw-semibold small">Full Name <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent text-muted"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control form-control-custom" id="name" name="name" placeholder="e.g. Yash Raj Singh Rathod" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="roll_number" class="form-label fw-semibold small">Roll Number <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent text-muted"><i class="fas fa-list-ol"></i></span>
+                            <input type="text" class="form-control form-control-custom" id="roll_number" name="roll_number" placeholder="e.g. CSE-2026-042" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="course" class="form-label fw-semibold small">Course / Class <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent text-muted"><i class="fas fa-graduation-cap"></i></span>
+                            <input type="text" class="form-control form-control-custom" id="course" name="course" placeholder="e.g. B.Tech Computer Science" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="email" class="form-label fw-semibold small">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent text-muted"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control form-control-custom" id="email" name="email" placeholder="student@university.edu">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="phone" class="form-label fw-semibold small">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent text-muted"><i class="fas fa-phone"></i></span>
+                            <input type="tel" class="form-control form-control-custom" id="phone" name="phone" placeholder="+91 98765 43210">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Facial Recognition Biometric Capture Section -->
+                <div class="card-custom p-4 mb-4 bg-light-subtle border">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-1"><i class="fas fa-camera text-primary me-2"></i>Facial Biometric Enrollment</h6>
+                            <p class="text-muted small mb-0">Capture face samples to enable automatic camera recognition for this student.</p>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#cameraModal">
+                            <i class="fas fa-expand me-1"></i> Open Camera Viewport
+                        </button>
+                    </div>
+
+                    <div id="captureFeedback">
+                        <div class="alert alert-secondary py-2 small mb-0">
+                            <i class="fas fa-info-circle me-1"></i> Biometrics not captured yet. Click <strong>"Open Camera Viewport"</strong> to capture face samples.
+                        </div>
+                    </div>
+
+                    <div id="captureResultCard" class="mt-3 p-3 bg-success-subtle rounded border border-success-subtle d-none">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-success text-white p-2">
+                                <i class="fas fa-check fa-lg"></i>
+                            </div>
+                            <div>
+                                <strong class="text-success d-block">Facial Biometrics Registered</strong>
+                                <small class="text-secondary">Normalized feature vectors successfully encoded and linked to this registration.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy & Consent Notice -->
+                <div class="card-custom p-3 mb-4 border-warning-subtle bg-warning-subtle text-dark">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="consentCheck" required>
+                        <label class="form-check-label small" for="consentCheck">
+                            <strong>Privacy & Consent Notice:</strong> I confirm that this facial biometric data is collected strictly for legitimate campus attendance verification. Only mathematical vector encodings are stored in SQLite; no unauthorized surveillance or sharing of biometric information is conducted.
+                        </label>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url_for('students_list') }}" class="btn btn-light border px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold shadow-sm" id="btnSubmitRegistration" disabled>
+                        <i class="fas fa-save me-1"></i> Complete Registration
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Webcam Face Capture -->
+<div class="modal fade" id="cameraModal" tabindex="-1" aria-labelledby="cameraModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content card-custom">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold" id="cameraModalLabel">
+                    <i class="fas fa-camera text-primary me-2"></i>Live Facial Capture
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="text-muted small mb-3">Position your face inside the green box under balanced lighting, then click <strong>Capture Face</strong>.</p>
+                <div class="camera-container mx-auto mb-3" style="max-width: 600px; max-height: 420px;">
+                    <img src="{{ url_for('capture_feed') }}" alt="Registration Camera Feed" class="camera-stream" id="modalWebcamStream">
+                    <div class="camera-badge">
+                        <span class="pulse-dot"></span> Live Registration Feed
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-primary px-4 py-2 fw-semibold" id="btnTriggerCapture" onclick="captureFaceSample()">
+                        <i class="fas fa-camera me-2"></i>Capture Face Samples
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer border-top justify-content-between">
+                <small class="text-muted"><i class="fas fa-lightbulb text-warning me-1"></i>Make sure only one person is in the frame.</small>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

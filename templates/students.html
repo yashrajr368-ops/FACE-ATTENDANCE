@@ -1,0 +1,101 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Manage Students - Face Attendance System{% endblock %}
+{% block page_title %}Student Directory{% endblock %}
+
+{% block content %}
+<div class="card-custom p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h5 class="fw-bold mb-1"><i class="fas fa-users-gear text-primary me-2"></i>Registered Students</h5>
+            <p class="text-muted small mb-0">Total of <strong>{{ students|length }}</strong> enrolled students in the attendance database.</p>
+        </div>
+        <a href="{{ url_for('register_student') }}" class="btn btn-primary shadow-sm">
+            <i class="fas fa-user-plus me-2"></i>Register New Student
+        </a>
+    </div>
+
+    <!-- Search and Course Filter -->
+    <form method="GET" action="{{ url_for('students_list') }}" class="row g-2 mb-4">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent text-muted"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control form-control-custom" name="search" placeholder="Search by name, student ID, or roll number..." value="{{ search_query }}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select form-select-custom" name="course">
+                <option value="">All Courses / Classes</option>
+                {% for c in courses %}
+                <option value="{{ c }}" {% if course_filter == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-primary w-100">
+                <i class="fas fa-filter me-1"></i> Filter
+            </button>
+            {% if search_query or course_filter %}
+            <a href="{{ url_for('students_list') }}" class="btn btn-light border" title="Reset Filters">
+                <i class="fas fa-times"></i>
+            </a>
+            {% endif %}
+        </div>
+    </form>
+
+    <!-- Students Table -->
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Full Name</th>
+                    <th>Roll Number</th>
+                    <th>Course / Class</th>
+                    <th>Email / Phone</th>
+                    <th>Biometrics</th>
+                    <th>Registered</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td><strong class="text-primary">{{ student.student_id }}</strong></td>
+                    <td class="fw-semibold">{{ student.name }}</td>
+                    <td>{{ student.roll_number }}</td>
+                    <td><span class="badge bg-secondary-subtle text-secondary">{{ student.course }}</span></td>
+                    <td class="small">
+                        {% if student.email %}<div><i class="fas fa-envelope me-1 text-muted"></i>{{ student.email }}</div>{% endif %}
+                        {% if student.phone %}<div><i class="fas fa-phone me-1 text-muted"></i>{{ student.phone }}</div>{% endif %}
+                        {% if not student.email and not student.phone %}<span class="text-muted">—</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if student.face_encoding %}
+                        <span class="badge bg-success-subtle text-success"><i class="fas fa-check-circle me-1"></i>Enrolled</span>
+                        {% else %}
+                        <span class="badge bg-warning-subtle text-warning"><i class="fas fa-triangle-exclamation me-1"></i>Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted">{{ student.created_at.strftime('%Y-%m-%d') if student.created_at else '' }}</td>
+                    <td class="text-end">
+                        <form method="POST" action="{{ url_for('delete_student', student_id=student.student_id) }}" onsubmit="return confirm('Are you sure you want to delete student {{ student.name }} ({{ student.student_id }})? This will also remove their attendance logs.');" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Student">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">
+                        <i class="fas fa-user-slash fa-2x mb-3 d-block text-secondary"></i>
+                        No student records match your query.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
